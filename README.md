@@ -1,2 +1,2 @@
-# elk
-Elasticsearch Logstach Kibana
+# Logging project
+Install Elasticsearch Logstach Kibana for OSA
