@@ -1,2 +1,2 @@
-# Logging project
-Install Elasticsearch Logstach Kibana for OSA
+# OpenNext Private Cloud Logging project
+Install and configure Elasticsearch, Logstach and Kibana for OSA
