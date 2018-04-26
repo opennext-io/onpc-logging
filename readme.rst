@@ -26,7 +26,7 @@ Create the logging container(s)
 
 .. code-block:: bash
 
-    cd /opt/openstack-ansible-playbooks
+    cd /opt/openstack-ansible/playbooks
     openstack-ansible lxc-containers-create.yml -e container_group=logging_containers
 
 install master/data elasticsearch nodes on the elastic-logstash containers

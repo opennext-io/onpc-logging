@@ -12,3 +12,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+- name: Deploy grafana
+  hosts: "elasticsearch"
+  gather_facts: true
+  user: root
+  environment: "{{ deployment_environment_variables }}"
+  
+  roles:
+    - role: elasticsearch
+      es_instance_name: "{{ es_node_name }}"
+      es_data_dirs: "/opt/elasticsearch/data"
+      es_log_dir: "/opt/elasticsearch/logs"
+      es_config:
+        node.name: "{{ es_node_name }}", 
+        cluster.name: "{{ es_cluster_name }}",
+        discovery.zen.ping.unicast.hosts: "localhost:{{ es_transport_port }}",
+        http.port: "{{ es_api_port }}",
+        transport.tcp.port: "{{ es_transport_port }}",
+        node.data: true,
+        node.master: true,
+        bootstrap.memory_lock: true,  
+  
+  vars_files:
+    - vars/elasticsearch.yml
