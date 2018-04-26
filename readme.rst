@@ -1,48 +1,33 @@
-install Elk stack with topbeat to gather metrics
-#################################################
-:tags: openstack, ansible
+OpenNext Private Logging Stack
+##############################
+:date: 2018-01-13
+:tags: openstack, ansible, opennext
+:category: \*openstack, \*nix, \*logging
 
 
 About this repository
 ---------------------
 
-This set of playbooks will deploy elk cluster (Elasticsearch, Logstash, Kibana) with topbeat to gather metrics from hosts metrics to the ELK cluster.
+This set of playbooks will deploy Elasticsearch, Fluentd and Kibana to collect,
+analyse and visualise the all the logs of the OpenStack infrastructure.
 
 Process
 -------
 
-Clone the elk-osa repo
+
+Clone the ONPC Logging repo
 
 .. code-block:: bash
 
     cd /opt
-    git clone https://github.com/openstack/openstack-ansible-ops
+    git clone https://github.com/opennext-io/onpc-logging.git
 
-Copy the env.d file into place
-
-.. code-block:: bash
-
-    cd openstack-ansible-ops
-    cp env.d/elk.yml /etc/openstack_deploy/env.d/
-
-Copy the conf.d file into place
+Create the logging container(s)
 
 .. code-block:: bash
 
-    cp conf.d/elk.yml /etc/openstack_deploy/conf.d/
-
-In **elk.yml**, list your logging hosts under elastic-logstash_hosts to create the elasticsearch cluster in multiple containers and one logging host under kibana_hosts to create the kibana container
-
-.. code-block:: bash
-
-    vi /etc/openstack_deploy/conf.d/elk.yml
-
-Create the containers
-
-.. code-block:: bash
-
-   cd /opt/openstack-ansible-playbooks
-   openstack-ansible lxc-containers-create.yml -e 'container_group=elastic-logstash:kibana'
+    cd /opt/openstack-ansible-playbooks
+    openstack-ansible lxc-containers-create.yml -e container_group=logging_containers
 
 install master/data elasticsearch nodes on the elastic-logstash containers
 
