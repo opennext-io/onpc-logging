@@ -20,7 +20,7 @@
   environment: "{{ onpc_environment_variables }}"
   
   roles:
-    - role: onpc-fluentd
+    - role: fluentd
         
   vars_files:
     - vars/fluentd.yml
