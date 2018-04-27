@@ -1,4 +1,4 @@
-tdagent_syslog_port: 5140
+tdagent_syslog_port: "{{ fluentd_syslog_port }}"
 tgagent_bind_address: 0.0.0.0
 tdagent_plugins:
   - fluent-plugin-multiprocess
@@ -12,7 +12,7 @@ tdagent_plugins_versions:
 
 tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
 
-tdagent_conf_others:
-  influxdb_metrics:
-    src:  templates/fluentd/influxdb.conf.j2
-    dest: influxdb.conf
+#tdagent_conf_others:
+#  influxdb_metrics:
+#    src:  templates/fluentd/influxdb.conf.j2
+#    dest: influxdb.conf

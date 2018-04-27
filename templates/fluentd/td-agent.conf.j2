@@ -9,11 +9,39 @@
   @type syslog
   port "{{ tdagent_syslog_port }}"
   bind "{{ tgagent_bind_address }}"
+  protocol_type tcp
+  message_format auto
   tag system
 </source>
 
 <match *.**>
-  type stdout
+  @type stdout
 </match>
+
+# Output
+#<match *.**>
+#  type copy
+#  <store>
+#    type elasticsearch
+#    host localhost
+#    port 9200
+#    include_tag_key true
+#    tag_key log_name
+#    logstash_format false
+#    flush_interval 1s
+#  </store>
+#</match>
+
+## match tag=debug.** and dump to console
+#<match debug.**>
+#  @type stdout
+#</match>
+
+## live debugging agent
+#<source>
+#  @type debug_agent
+#  bind 127.0.0.1
+#  port 24230
+#</source>
 
 @include /etc/td-agent/conf.d/*.conf
