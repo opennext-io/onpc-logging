@@ -1,0 +1,19 @@
+#
+# Simple default td-agent.conf
+# For more details, see http://docs.fluentd.org/articles/config-file
+#
+
+# Syslog input plugin enables Fluentd to retrieve records via the syslog protocol on UDP or TCP.
+# @see https://docs.fluentd.org/v1.0/articles/in_syslog
+<source>
+  @type syslog
+  port "{{ tdagent_syslog_port }}"
+  bind "{{ tgagent_bind_address }}"
+  tag system
+</source>
+
+<match *.**>
+  type stdout
+</match>
+
+@include /etc/td-agent/conf.d/*.conf

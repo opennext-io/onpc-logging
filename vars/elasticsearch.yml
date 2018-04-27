@@ -1,4 +1,6 @@
 # elastic search vars
+es_major_version: "6.x"
+es_version: "6.2.4"
 es_cluster_name: elastic
 es_node_name: "{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}"
 es_scripts: false
