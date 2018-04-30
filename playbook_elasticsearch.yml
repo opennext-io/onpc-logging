@@ -33,6 +33,12 @@
         node.data: true
         node.master: true
         bootstrap.memory_lock: true
+    - role: "rsyslog_client"
+      rsyslog_client_log_rotate_file: elaticsearch_log_rotate
+      rsyslog_client_log_dir: "/var/log/elasticsearch"
+      rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"
+      tags:
+        - rsyslog
   
   vars_files:
     - vars/elasticsearch.yml
