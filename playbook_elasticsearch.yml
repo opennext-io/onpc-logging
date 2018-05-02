@@ -21,7 +21,7 @@
   
   roles:
     - role: elasticsearch
-      es_instance_name: "{{ es_node_name }}"
+      es_instance_name: "{{ physical_host }}"
       es_data_dirs: "/opt/elasticsearch/data"
       es_log_dir: "/var/log/elasticsearch"
       es_config:
@@ -30,6 +30,7 @@
         discovery.zen.ping.unicast.hosts: "localhost:{{ es_transport_port }}"
         http.port: "{{ es_api_port }}"
         transport.tcp.port: "{{ es_transport_port }}"
+        network.host: "{{ ansible_host }}"
         node.data: true
         node.master: true
         bootstrap.memory_lock: true
