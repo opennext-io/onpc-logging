@@ -28,7 +28,8 @@
         node.name: "{{ es_node_name }}"
         cluster.name: "{{ es_cluster_name }}"
         discovery.zen.ping.unicast.hosts: "localhost:{{ es_transport_port }}"
-        network.host: "{{ ansible_host }}"
+#       network.host: "{{ ansible_host }}"
+        network.host: 0.0.0.0
         http.port: "{{ es_api_port }}"
         transport.tcp.port: "{{ es_transport_port }}"
         transport.host: localhost
