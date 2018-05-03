@@ -1,5 +1,5 @@
 ---
-# Copyright 2018, OpenNext SAS
+# Copyright 2016, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,21 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Deploy Fluentd
-  hosts: fluentd
+- name: Deploy Kibana
+  hosts: kibana
   gather_facts: true
   user: root
-  environment: "{{ onpc_environment_variables }}"
-  
+  environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
-    - role: fluentd
-    - role: "rsyslog_client"
-      rsyslog_client_log_rotate_file: td-agent_log_rotate
-      rsyslog_client_log_dir: "/var/log/td-agent"
-      rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
-      tags:
-        - rsyslog
-        
-  vars_files:
-    - vars/fluentd.yml
-    - vars/elasticsearch.yml
+    - role: "kibana"

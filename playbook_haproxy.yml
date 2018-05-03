@@ -17,7 +17,7 @@
   hosts: haproxy
   gather_facts: true
   user: root
-  environment: "{{ onpc_environment_variables | default({}) }}"
+# environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
     - role: "haproxy_server"
       haproxy_service_configs:
@@ -29,12 +29,29 @@
             haproxy_backend_port: "{{ es_api_port }}"
             haproxy_balance_type: http
             haproxy_backend_options:
-              - "forwardfor"
               - "httpchk GET /_cat/health"
             haproxy_whitelist_networks:
               - 192.168.0.0/16
               - 172.16.0.0/12
               - 10.0.0.0/8
+        - service:
+            haproxy_service_name: kibana
+            haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+            haproxy_ssl: "{{ haproxy_ssl }}"
+            haproxy_port: "{{ es_api_port }}"
+            haproxy_backend_port: "{{ es_api_port }}"
+            haproxy_balance_type: http
+            haproxy_backend_options:
+              - "httpchk GET /"
+            haproxy_backend_reqrep: "^([^\ :]*)\ /kibana/(.*) \1\ /\2"
+            haproxy_whitelist_networks:
+              - 192.168.0.0/16
+              - 172.16.0.0/12
+              - 10.0.0.0/8
+            haproxy_acls:
+              acl_kibana:
+                 rule: "path_beg /kibana"
+                 backend_name: "kibana"
         - service:
             haproxy_service_name: fluentd
             haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
@@ -44,6 +61,10 @@
             haproxy_backend_options:
               - tcp-check
               - tcplog
+            haproxy_whitelist_networks:
+              - 192.168.0.0/16
+              - 172.16.0.0/12
+              - 10.0.0.0/8
   vars_files:
     - vars/elasticsearch.yml
     - vars/fluentd.yml
