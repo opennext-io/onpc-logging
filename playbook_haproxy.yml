@@ -68,3 +68,4 @@
   vars_files:
     - vars/elasticsearch.yml
     - vars/fluentd.yml
+    - vars/kibana.yml
