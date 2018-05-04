@@ -38,12 +38,12 @@
             haproxy_service_name: kibana
             haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
             haproxy_ssl: "{{ haproxy_ssl }}"
-            haproxy_port: "{{ es_api_port }}"
-            haproxy_backend_port: "{{ es_api_port }}"
+            haproxy_port: "{{ kibana_server_port }}"
+            haproxy_backend_port: "{{ kibana_server_port }}"
             haproxy_balance_type: http
             haproxy_backend_options:
               - "httpchk GET /"
-            haproxy_backend_reqrep: "^([^\ :]*)\ /kibana/(.*) \1\ /\2"
+            haproxy_backend_reqrep: '^([^\ :]*)\ /kibana/(.*) \1\ /\2'
             haproxy_whitelist_networks:
               - 192.168.0.0/16
               - 172.16.0.0/12
