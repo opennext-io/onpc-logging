@@ -28,5 +28,5 @@
         - rsyslog
   
   vars_files:
-+    - vars/kibana.yml
-+    - vars/elasticsearch.yml
+    - vars/kibana.yml
+    - vars/elasticsearch.yml
