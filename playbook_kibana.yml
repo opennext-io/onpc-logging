@@ -20,6 +20,12 @@
   environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
     - role: "kibana"
+    - role: "rsyslog_client"
+      rsyslog_client_log_rotate_file: kibana_log_rotate
+      rsyslog_client_log_dir: "/var/log/kibana"
+      rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
+      tags:
+        - rsyslog
   
   vars_files:
 +    - vars/kibana.yml

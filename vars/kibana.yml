@@ -3,3 +3,4 @@ kibana_server_host: 0.0.0.0
 kibana_server_port: 5601
 kibana_version: 6.2.4
 kibana_elasticsearch_url: "http://localhost:{{ es_api_port }}"
+kibana_conf_template: "templates/kibana/kibana.conf.j2"

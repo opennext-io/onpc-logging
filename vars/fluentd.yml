@@ -12,7 +12,7 @@ tdagent_plugins_versions:
 
 tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
 
-#tdagent_conf_others:
+# tdagent_conf_others:
 #  influxdb_metrics:
 #    src:  templates/fluentd/influxdb.conf.j2
 #    dest: influxdb.conf
