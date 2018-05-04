@@ -20,3 +20,7 @@
   environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
     - role: "kibana"
+  
+  vars_files:
++    - vars/kibana.yml
++    - vars/elasticsearch.yml
