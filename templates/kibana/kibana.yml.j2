@@ -71,7 +71,11 @@ elasticsearch.url: {{ kibana_elasticsearch_url }}
 # pid.file: /var/run/kibana.pid
 
 # If you would like to send the log output to a file you can set the path below.
-logging.dest: {{ kibana_log_dir | default('stdout') }}
+{% if kibana_log_dir is defined %}
+logging.dest: "{{ kibana_log_dir }}/kibana.log"
+{% else %}
+logging.dest: 'stdout'
+{% endif %}
 
 # Set this to true to suppress all logging output.
 # logging.silent: false

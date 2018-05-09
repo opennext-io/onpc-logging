@@ -32,7 +32,8 @@
   roles:
     - role: elasticsearch
       es_instance_name: "{{ physical_host }}"
-      es_data_dirs: "/var/lib/elasticsearch/data"
+      es_data_dirs:
+        - "/var/lib/elasticsearch/data"
       es_log_dir: "/var/log/elasticsearch"
       es_config:
         node.name: "{{ es_node_name }}"
