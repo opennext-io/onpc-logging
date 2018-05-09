@@ -11,25 +11,12 @@
   bind "{{ tgagent_bind_address }}"
   protocol_type tcp
   message_format auto
-  tag "{{ onpc_environment_name }}"
+  tag syslog
 </source>
 
-<match *.**>
-  @type stdout
-</match>
-
-# Output
-<match onpc.**>
-  @type elasticsearch
-  host localhost
-  port {{ es_api_port }}
-  index_name fluentd
-  flush_interval 1s
-</match>
-
-## match tag=debug.** and dump to console
-#<match debug.**>
-#  @type stdout
+## Used for debug
+# <match syslog.**>
+#   @type stdout
 #</match>
 
 ## live debugging agent
@@ -38,5 +25,22 @@
 #  bind 127.0.0.1
 #  port 24230
 #</source>
+
+# get logs from fluent-logger, fluent-cat or other fluentd instances
+<source>
+  @type forward
+</source>
+
+# Output
+<match syslog.**>
+  @type elasticsearch
+  host localhost
+  port {{ es_api_port }}
+  logstash_format true
+  <buffer>
+    flush_interval 10s
+  </buffer>
+
+</match>
 
 @include /etc/td-agent/conf.d/*.conf
