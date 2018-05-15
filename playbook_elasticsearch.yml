@@ -40,8 +40,6 @@
       tags: [elasticsearch, influxdb-install]
   roles:
     - role: elasticsearch
-    
-    
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "/var/log/elasticsearch"
@@ -57,5 +55,7 @@
       when:
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
+      tags: [elasticsearch, elasticsearch-rsyslog]
+  
   vars_files:
     - vars/elasticsearch.yml
