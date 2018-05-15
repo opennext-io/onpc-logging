@@ -18,41 +18,43 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
-  pre_tasks:
-    - name: Elasticsearch datapath bind mount
-      lxc_container:
-        name: "{{ inventory_hostname }}"
-        container_command: |
-          [[ ! -d "/var/lib/elasticsearch/data" ]] && mkdir -p "/var/lib/elasticsearch/data"
-        container_config:
-          - "lxc.mount.entry=/openstack/{{ inventory_hostname }} var/lib/elasticsearch/data none bind 0 0"
-      delegate_to: "{{ physical_host }}"
-      changed_when: false
-      tags: [elasticsearch, elasticsearch-pre-tasks]
+  pre-tasks:
+    # Disable elasticsearch haproxy backend to avoid triggering false positive alerts.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: elasticsearch-back
+        haproxy_state: disabled
+      when:
+        - "'elasticsearch' in group_names"
+        - "groups['elasticsearch'] | length > 1"
+    - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
+      static: no
+      vars:
+        list_of_bind_mounts: "{{ elasticsearch_container_bind_mounts }}"
+      tags: [elasticsearch, influxdb-install]
+    - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
+      vars:
+        log_dirs:
+          - src: "/openstack/log/{{ inventory_hostname }}-elasticsearch"
+            dest: "{{ elasticsearch_log_dir }}"
+      tags: [elasticsearch, influxdb-install]
   roles:
     - role: elasticsearch
-      es_instance_name: "{{ physical_host }}"
-      es_data_dirs:
-        - "/var/lib/elasticsearch/data"
-      es_log_dir: "/var/log/elasticsearch"
-      es_config:
-        node.name: "{{ es_node_name }}"
-        cluster.name: "{{ es_cluster_name }}"
-        discovery.zen.ping.unicast.hosts: "localhost:{{ es_transport_port }}"
-#       network.host: "{{ ansible_host }}"
-        network.host: 0.0.0.0
-        http.port: "{{ es_api_port }}"
-        transport.tcp.port: "{{ es_transport_port }}"
-        transport.host: localhost
-        node.data: true
-        node.master: true
-        bootstrap.memory_lock: true
-      tags: [elasticsearch, elasticsearch-install]    
-    
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "/var/log/elasticsearch"
       rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"
+      tags:
+        - rsyslog
+  post-tasks:
+    # Enable back elasticsearch haproxy backend.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: elasticsearch-back
+        haproxy_state: enabled
+      when:
+        - "'elasticsearch' in group_names"
+        - "groups['elasticsearch'] | length > 1"
       tags: [elasticsearch, elasticsearch-rsyslog]
   
   vars_files:
