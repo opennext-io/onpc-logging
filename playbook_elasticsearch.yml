@@ -18,7 +18,7 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
-  pre-tasks:
+  pre_tasks:
     # Disable elasticsearch haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
@@ -47,7 +47,7 @@
       es_config:
         node.name: "{{ elastic_node_name }}"
         cluster.name: elasticsearch
-        discovery.zen.ping.unicast.hosts: "{{ elastic_cluster_nodes }}"
+        discovery.zen.ping.unicast.hosts: "{% for host in groups[elasticsearch] %}{{ hostvars[host]['ansible_host'] }}{% if not loop.last %},{% endif %}{% endfor %}"
         http.port: "{{ elastic_port }}"
         transport.tcp.port: "{{ elastic_transport_port }}"
         node.data: true
@@ -60,7 +60,7 @@
       rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"
       tags:
         - rsyslog
-  post-tasks:
+  post_tasks:
     # Renable elasticsearch haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
