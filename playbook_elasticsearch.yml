@@ -19,7 +19,7 @@
   user: root
   environment: "{{ onpc_environment_variables }}"
   pre-tasks:
-    # Disable elasticsearch haproxy backend to avoid triggering false positive alerts.
+    # Disable elasticsearch haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: elasticsearch-back
@@ -30,8 +30,9 @@
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
       static: no
       vars:
-        list_of_bind_mounts: "{{ elasticsearch_container_bind_mounts }}"
+        list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
       tags: [elasticsearch, influxdb-install]
+    # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
         log_dirs:
@@ -40,6 +41,19 @@
       tags: [elasticsearch, influxdb-install]
   roles:
     - role: elasticsearch
+      es_instance_name: "{{ ansible_nodename }}"
+      es_data_dirs: "{{ elastic_data_dir }}"
+      es_log_dir: "{{ elastic_log_dir }}"
+      es_config:
+        node.name: "{{ elastic_node_name }}"
+        cluster.name: elasticsearch
+        discovery.zen.ping.unicast.hosts: "{{ elastic_cluster_nodes }}"
+        http.port: "{{ elastic_port }}"
+        transport.tcp.port: "{{ elastic_transport_port }}"
+        node.data: true
+        node.master: true
+        bootstrap.memory_lock: true
+        
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "/var/log/elasticsearch"
@@ -47,7 +61,7 @@
       tags:
         - rsyslog
   post-tasks:
-    # Enable back elasticsearch haproxy backend.
+    # Renable elasticsearch haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: elasticsearch-back
