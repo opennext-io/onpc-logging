@@ -39,12 +39,6 @@
           - src: "/openstack/log/{{ inventory_hostname }}-elasticsearch"
             dest: "{{ elasticsearch_log_dir }}"
       tags: [elasticsearch, influxdb-install]
-    
-    - name: Debug message
-      debug: msg="List of cluster nodes = {{ elastic_cluster_node }}"
-
-    - name: Debug message
-      debug: msg="http port = {{ elastic_port }}"
       
   roles:
     - role: elasticsearch
