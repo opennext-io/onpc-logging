@@ -4,12 +4,11 @@ elastic_data_dirs: "/var/lib/elasticsearch/data"
 elastic_container_bind_mounts:
   - bind_dir_path: "{{ elastic_data_dirs }}"
     mount_path: "/openstack/{{ inventory_hostname }}"
-elastic_cluster_name: elasticsearch
+elastic_cluster_name: "elasticsearch"
 elastic_port: 9200
 elastic_transport_port: 9300
 elastic_bind_addresses: [127.0.0.1, "{{ ansible_host }}"]
 elastic_node_name: "{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}"
-elastic_cluster_nodes: "{% for host in groups[elasticsearch_host_group] %}{{ hostvars[host]['ansible_host'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 es_scripts: false
 es_templates: false
@@ -19,5 +18,5 @@ es_api_port: 9200
 es_major_version: "6.x"
 es_version: "6.2.4"
 es_max_map_count: 262144
-es_start_service: false
+es_start_service: true
 es_plugins_reinstall: false
