@@ -48,11 +48,21 @@
         node.name: "{{ elastic_node_name }}"
         cluster.name: "{{ elastic_cluster_name }}"
         discovery.zen.ping.unicast.hosts: "{% for host in groups[elasticsearch] %}{{ hostvars[host]['ansible_host'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+        network.host: [127.0.0.1, "{{ ansible_host }}"]
         http.port: "{{ elastic_port }}"
         transport.tcp.port: "{{ elastic_transport_port }}"
         node.data: true
         node.master: true
         bootstrap.memory_lock: true
+      es_scripts: false
+      es_templates: false
+      es_version_lock: true
+      es_heap_size: 2g
+      es_api_port: "{{ elastic_port }}"
+      es_major_version: "6.x"
+      es_version: "6.2.4"
+      es_max_map_count: 262144
+      es_start_service: true
 
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
