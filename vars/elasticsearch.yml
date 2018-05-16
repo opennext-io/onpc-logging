@@ -8,4 +8,5 @@ elastic_cluster_name: "elasticsearch"
 elastic_port: 9200
 elastic_transport_port: 9300
 elastic_node_name: "{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}"
+elastic_cluster_nodes: "{% for host in groups[elasticsearch] %}{{ hostvars[host]['ansible_host'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 
