@@ -43,10 +43,12 @@
   roles:
     - role: elasticsearch
       es_instance_name: "{{ ansible_nodename }}"
+      es_data_dirs: ["{{ elastic_data_dir }}"]
+      es_log_dir: "{{ elastic_log_dir }}"
       es_config:
         node.name: "{{ elastic_node_name }}"
         cluster.name: "{{ elastic_cluster_name }}"
-        discovery.zen.ping.unicast.hosts: "{{ elastic_cluster_nodes }}"
+        discovery.zen.ping.unicast.hosts: ["{{ elastic_cluster_nodes }}"]
         network.host: [127.0.0.1, "{{ ansible_host }}"]
         http.port: "{{ elastic_port }}"
         transport.tcp.port: "{{ elastic_transport_port }}"
