@@ -20,6 +20,7 @@
 # environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
     - role: "haproxy_server"
+      # Should probably be removed since Elasticsearch is accessed localy to the node only
       haproxy_service_configs:
         - service:
             haproxy_service_name: elasticsearch
@@ -56,7 +57,7 @@
             haproxy_service_name: fluentd
             haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
             haproxy_ssl: "{{ haproxy_ssl }}"
-            haproxy_port: "{{ fluentd_syslog_port }}"
+            haproxy_port: "{{ td_agent_syslog_port }}"
             haproxy_balance_type: tcp
             haproxy_backend_options:
               - tcp-check

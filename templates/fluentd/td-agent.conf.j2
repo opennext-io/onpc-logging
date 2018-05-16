@@ -1,18 +1,46 @@
-#
-# Simple default td-agent.conf
-# For more details, see http://docs.fluentd.org/articles/config-file
-#
-
 # Syslog input plugin enables Fluentd to retrieve records via the syslog protocol on UDP or TCP.
 # @see https://docs.fluentd.org/v1.0/articles/in_syslog
+
+<system>
+  workers 3
+</system>
+
 <source>
   @type syslog
   port "{{ tdagent_syslog_port }}"
   bind "{{ tgagent_bind_address }}"
   protocol_type tcp
-  message_format auto
+  <parse>
+    message_format auto
+    with_priority false 
+  </parse>
+ # log_level debug
   tag syslog
 </source>
+
+# get logs from fluent-logger, fluent-cat or other fluentd instances
+<source>
+  @type forward
+</source>
+
+# Output
+<match syslog.**>
+  @type copy
+#  <store>
+#    @type stdout
+#  </store>
+  <store>
+    @type elasticsearch
+    host localhost
+    port {{ es_api_port }}
+    logstash_format true
+    include_timestamp true
+    include_tag_key true
+    <buffer>
+      flush_interval 10s
+    </buffer>
+  </store>
+</match>
 
 ## Used for debug
 # <match syslog.**>
@@ -25,21 +53,5 @@
 #  bind 127.0.0.1
 #  port 24230
 #</source>
-
-# get logs from fluent-logger, fluent-cat or other fluentd instances
-<source>
-  @type forward
-</source>
-
-# Output
-<match syslog.**>
-  @type elasticsearch
-  host localhost
-  port {{ es_api_port }}
-  logstash_format true
-  <buffer>
-    flush_interval 10s
-  </buffer>
-</match>
 
 @include /etc/td-agent/conf.d/*.conf
