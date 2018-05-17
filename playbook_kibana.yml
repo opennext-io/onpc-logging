@@ -18,7 +18,9 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables | default({}) }}"
-  # Disable kibana haproxy backend to avoid false positive alerts.
+
+  pre_tasks:
+    # Disable kibana haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: kibana-back
@@ -46,7 +48,7 @@
       tags: [kibana, kibana-rsyslog]
   
   post_tasks:
-    # Renable kibana haproxy backend.
+    # Re-enable kibana haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: kibana-back

@@ -70,7 +70,7 @@
       tags: [elasticsearch, elasticsearch-rsyslog]
 
   post_tasks:
-    # Renable elasticsearch haproxy backend.
+    # Re-enable elasticsearch haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: elasticsearch-back

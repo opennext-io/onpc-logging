@@ -47,7 +47,7 @@
       tags: [fluentd, fluentd-rsyslog]
   
   post_tasks:
-    # Renable fluentd haproxy backend.
+    # Re-enable fluentd haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: fluentd-back

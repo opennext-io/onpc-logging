@@ -21,7 +21,7 @@
 # environment: "{{ onpc_environment_variables | default({}) }}"
   roles:
     - role: "haproxy_server"
-      # Should probably be removed since Elasticsearch is accessed localy to the node only
+      # Elasticsearch shuld probably be removed since it's accessed only localy
       haproxy_service_configs:
         - service:
             haproxy_service_name: elasticsearch
