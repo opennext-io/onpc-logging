@@ -18,16 +18,45 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
-  
+ 
+  pre_tasks:
+    # Disable fluentd haproxy backend to avoid false positive alerts.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: fluentd-back
+        haproxy_state: disabled
+      when:
+        - "'fluentd' in group_names"
+        - "groups['fluentd'] | length > 1"
+      tags: tags: [fluentd, fluentd-disable-haproxy]
+    - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
+    # Only relevant to install on metal
+    - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
+      vars:
+        log_dirs:
+          - src: "/openstack/log/{{ inventory_hostname }}-fluentd"
+            dest: "{{ fluentd_log_dir }}"
+      tags: [fluentd, fluentd-pre-install]
   roles:
     - role: fluentd
+      tags: [fluentd, fluentd-install]
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: td-agent_log_rotate
-      rsyslog_client_log_dir: "/var/log/td-agent"
+      rsyslog_client_log_dir: "{{ tgagent_log_dir }}"
       rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
-      tags:
-        - rsyslog
-        
+      tags: [fluentd, fluentd-rsyslog]
+  
+  post_tasks:
+    # Renable fluentd haproxy backend.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: fluentd-back
+        haproxy_state: enabled
+      when:
+        - "'fluentd' in group_names"
+        - "groups['fluentd'] | length > 1"
+      tags: [fluentd, fluentd-post-install]
+
   vars_files:
     - vars/fluentd.yml
     - vars/elasticsearch.yml

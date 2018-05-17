@@ -27,18 +27,19 @@
       when:
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
+      tags: [elasticsearch, elasticsearch-disable-haproxy]   
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
       static: no
       vars:
         list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
-      tags: [elasticsearch, influxdb-install]
+      tags: [elasticsearch, elasticsearch-bind-mounts]
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
         log_dirs:
           - src: "/openstack/log/{{ inventory_hostname }}-elasticsearch"
             dest: "{{ elasticsearch_log_dir }}"
-      tags: [elasticsearch, influxdb-install]
+      tags: [elasticsearch, elasticsearch-pre-install]
       
   roles:
     - role: elasticsearch
@@ -60,13 +61,14 @@
       es_version_lock: true
       es_heap_size: 2g
       es_max_map_count: 262144
+      tags: [elasticsearch, elasticsearch-install]  
 
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "{{ elastic_log_dir }}"
       rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"
-      tags:
-        - rsyslog
+      tags: [elasticsearch, elasticsearch-rsyslog]
+
   post_tasks:
     # Renable elasticsearch haproxy backend.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
@@ -76,7 +78,7 @@
       when:
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
-      tags: [elasticsearch, elasticsearch-rsyslog]
+      tags: [elasticsearch, elasticsearch-post-install]
   
   vars_files:
     - vars/elasticsearch.yml
