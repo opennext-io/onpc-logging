@@ -27,8 +27,8 @@
             haproxy_service_name: elasticsearch
             haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
             haproxy_ssl: "{{ haproxy_ssl }}"
-            haproxy_port: "{{ es_api_port }}"
-            haproxy_backend_port: "{{ es_api_port }}"
+            haproxy_port: "{{ elastic_port }}"
+            haproxy_backend_port: "{{ elastic_port }}"
             haproxy_balance_type: http
             haproxy_backend_options:
               - "httpchk GET /_cat/health"
