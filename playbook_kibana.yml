@@ -1,5 +1,5 @@
 ---
-# Copyright 2016, Rackspace US, Inc.
+# Copyright 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,44 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables | default({}) }}"
+  # Disable kibana haproxy backend to avoid false positive alerts.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: kibana-back
+        haproxy_state: disabled
+      when:
+        - "'kibana' in group_names"
+        - "groups['kibana'] | length > 1"
+      tags: [kibana, kibana-disable-haproxy]
+    - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
+    # Only relevant to install on metal
+    - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
+      vars:
+        log_dirs:
+          - src: "/openstack/log/{{ inventory_hostname }}-kibana"
+            dest: "{{ kibana_log_dir }}"
+      tags: [kibana, kibana-pre-install]
+  
   roles:
     - role: "kibana"
+      tags: [kibana, kibana-install]
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: kibana_log_rotate
-      rsyslog_client_log_dir: "/var/log/kibana"
+      rsyslog_client_log_dir: "{{ kibana_log_dir }}"
       rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
-      tags:
-        - rsyslog
+      tags: [kibana, kibana-rsyslog]
   
+  post_tasks:
+    # Renable kibana haproxy backend.
+    - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
+      vars:
+        haproxy_backend: kibana-back
+        haproxy_state: enabled
+      when:
+        - "'kibana' in group_names"
+        - "groups['kibana'] | length > 1"
+      tags: [kibana, kibana-post-install]
+
   vars_files:
     - vars/kibana.yml
     - vars/elasticsearch.yml

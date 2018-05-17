@@ -28,7 +28,7 @@
       when:
         - "'fluentd' in group_names"
         - "groups['fluentd'] | length > 1"
-      tags: tags: [fluentd, fluentd-disable-haproxy]
+      tags: [fluentd, fluentd-disable-haproxy]
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
