@@ -1,5 +1,4 @@
 
-elastic_interface: "{{ ansible_eth1['device'] }}"
 elastic_log_dir: "/var/log/elasticsearch"
 elastic_data_dir: "/var/lib/elasticsearch/data"
 elastic_container_bind_mounts:
