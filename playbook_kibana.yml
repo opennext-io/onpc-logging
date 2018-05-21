@@ -44,7 +44,7 @@
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: kibana_log_rotate
       rsyslog_client_log_dir: "{{ kibana_log_dir }}"
-      rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
+      rsyslog_client_config_name: "99-kibana-rsyslog-client.conf"
       tags: [kibana, kibana-rsyslog]
   
   post_tasks:
