@@ -5,6 +5,7 @@ tdagent_plugins:
   - fluent-plugin-multiprocess
   - fluent-plugin-forest
   - fluent-plugin-elasticsearch
+  - fluent-plugin-rewrite-tag-filter
 
 tdagent_plugins_versions:
   flowcounter:
