@@ -27,14 +27,15 @@ Create the logging container(s)
 .. code-block:: bash
 
     cd /opt/openstack-ansible/playbooks
-    openstack-ansible lxc-containers-create.yml -e container_group=logging_containers
+    openstack-ansible lxc-containers-create.yml \
+      -e 'container_group=elastic-fluentd:kibana'
 
-install master/data elasticsearch nodes on the elastic-logstash containers
+install master/data elasticsearch nodes on the elastic-fluentd containers
 
 .. code-block:: bash
 
     cd /opt/openstack-ansible-ops
-    openstack-ansible installElastic.yml -e elk_hosts=elastic-logstash -e node_master=true -e node_data=true
+    openstack-ansible playbook_elasticsearch -e elastic_hosts=elasticsearch -e node_master=true -e node_data=true
 
 Install an Elasticsearch client on the kibana container to serve as a loadbalancer for the Kibana backend server
 
