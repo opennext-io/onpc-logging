@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Deploy Elasticsearch  
-  hosts: elasticsearch
+  hosts: "{{ elastic_hosts | default('elasticsearch') }}"
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
@@ -32,6 +32,8 @@
       static: no
       vars:
         list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
+      when:
+        - "{{ node_data | default(true) | bool }}"
       tags: [elasticsearch, elasticsearch-bind-mounts]
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
@@ -55,8 +57,8 @@
         http.port: "{{ elastic_port }}"
         transport.host: localhost
         transport.tcp.port: "{{ elastic_transport_port }}"
-        node.data: true
-        node.master: true
+        node.data: "{{ node_data | default(true) }}"
+        node.master: "{{ node_master | default(true) }}"
         bootstrap.memory_lock: true
       es_version_lock: true
       es_heap_size: 2g
