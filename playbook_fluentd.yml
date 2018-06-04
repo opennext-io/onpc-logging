@@ -40,22 +40,6 @@
   roles:
     - role: fluentd
       tags: [fluentd, fluentd-install]
-    - role: "haproxy_server"
-      haproxy_service_configs:
-        - service:
-            haproxy_service_name: fluentd
-            haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
-            haproxy_ssl: "{{ haproxy_ssl }}"
-            haproxy_port: "{{ td_agent_syslog_port }}"
-            haproxy_balance_type: tcp
-            haproxy_backend_options:
-              - tcp-check
-              - tcplog
-            haproxy_whitelist_networks:
-              - 192.168.0.0/16
-              - 172.16.0.0/12
-              - 10.0.0.0/8
-      tags: [fluentd, haproxy-config]
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: td-agent_log_rotate
       rsyslog_client_log_dir: "{{ tgagent_log_dir }}"
