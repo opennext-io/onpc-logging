@@ -61,7 +61,7 @@
         node.master: "{{ node_master | default(true) }}"
         bootstrap.memory_lock: true
       es_version_lock: false
-      es_heap_size: 1g
+      es_heap_size: 2g
       es_max_map_count: 262144
       tags: [elasticsearch, elasticsearch-install]  
 
