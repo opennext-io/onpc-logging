@@ -18,6 +18,7 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
+  serial: 1
   pre_tasks:
     # Disable elasticsearch haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
@@ -33,7 +34,7 @@
       vars:
         list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
       when:
-        - "{{ node_data | default(true) | bool }}"
+        - node_data | default(true) | bool
       tags: [elasticsearch, elasticsearch-bind-mounts]
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
@@ -42,7 +43,15 @@
           - src: "/openstack/log/{{ inventory_hostname }}-elasticsearch"
             dest: "{{ elasticsearch_log_dir }}"
       tags: [elasticsearch, elasticsearch-pre-install]
-      
+    # This must be done on host because file system is read only in containers
+    - name: Configure systcl vm.max_map_count=262144 on container hosts
+      sysctl:
+        name: "vm.max_map_count"
+        value: "262144"
+        state: "present"
+        reload: "yes"
+      delegate_to: "{{ physical_host }}"
+      tags: [elasticsearch, systemctl]
   roles:
     - role: elasticsearch
       es_instance_name: "{{ ansible_nodename }}"
@@ -51,17 +60,16 @@
       es_config:
         node.name: "{{ elastic_node_name }}"
         cluster.name: "{{ elastic_cluster_name }}"
-        discovery.zen.ping.unicast.hosts: [127.0.0.1, "{{ elastic_cluster_nodes }}"]
+        discovery.zen.ping.unicast.hosts: "{{ elastic_cluster_nodes }}"
         # Seems to be the only config that works with ES that is very fuzy
-        network.host: 0.0.0.0
+        network.host: [127.0.0.1, "{{ ansible_host }}"] 
         http.port: "{{ elastic_port }}"
-        transport.host: localhost
         transport.tcp.port: "{{ elastic_transport_port }}"
         node.data: "{{ node_data | default(true) }}"
         node.master: "{{ node_master | default(true) }}"
         bootstrap.memory_lock: true
       es_version_lock: false
-      es_heap_size: 2g
+      es_heap_size: 1g
       es_max_map_count: 262144
       tags: [elasticsearch, elasticsearch-install]  
 

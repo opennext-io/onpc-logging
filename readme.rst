@@ -14,7 +14,6 @@ analyse and visualise the all the logs of the OpenStack infrastructure.
 Process
 -------
 
-
 Clone the ONPC Logging repo
 
 .. code-block:: bash
@@ -39,7 +38,7 @@ Install an Elasticsearch client on the kibana container to serve as a loadbalanc
 
 .. code-block:: bash
 
-    openstack-ansible playbook_elasticsearch.yml -e 'elastic_hosts=kibana -e node_master=false -e node_data=false'
+    openstack-ansible playbook_elasticsearch.yml -e 'elastic_hosts=kibana -e node_master=false -e node_data=false' -
 
 Install Fluentd (td-agent) on the fluentd containers
    
@@ -52,3 +51,14 @@ Install Kibana on Kibana containers
 .. code-block:: bash
 
     openstack-ansible playbook_kibana.yml
+
+Reconfigure rsyslog clients on hosts and containers to send syslog logs to fluentd (optional)
+Normally, this should be done at infra and openstack setup time as long as
+'rsyslog_client_user_defined_targets' is properly defined in user_onpc_variable.yml file.
+
+.. code-block:: bash
+
+    cd /opt/openstack-ansible
+    openstack-ansible lxc-hosts-setup.yml --tags "rsyslog"
+    openstack-ansible setup-openstack.yml --tags "rsyslog"
+
