@@ -28,6 +28,14 @@ Create the logging container(s)
 
     openstack-ansible lxc-containers-create.yml -e 'container_group=elastic-fluentd_containers:kibana_containers'
 
+If you are running HAProxy for load balacing you need run the following playbook as well to enable
+the logging services backend and frontend.
+
+.. code-block:: bash
+
+    openstack-ansible playbook_haproxy.yml
+    
+
 Install master/data Elasticsearch servers on the elasticsearch containers
 
 .. code-block:: bash
