@@ -22,6 +22,8 @@
   roles:
     - role: "haproxy_server"
       haproxy_service_configs:
+# Not needed anymore since elasticsearch client running in kibana container proxies the
+# elasticsearch cluster acccess
 #        - service:
 #            haproxy_service_name: elasticsearch
 #            haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
