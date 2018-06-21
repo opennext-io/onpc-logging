@@ -28,23 +28,22 @@
       when:
         - "'fluentd' in group_names"
         - "groups['fluentd'] | length > 1"
-      tags: [fluentd, fluentd-disable-haproxy]
+      tags: [fluentd-disable-haproxy]
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
-    # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
         log_dirs:
           - src: "/openstack/log/{{ inventory_hostname }}-fluentd"
             dest: "{{ fluentd_log_dir }}"
-      tags: [fluentd, fluentd-pre-install]
+    - include: /opt/openstack-ansible/playbooks/common-tasks/package-cache-proxy.yml
+
   roles:
     - role: fluentd
-      tags: [fluentd, fluentd-install]
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: td-agent_log_rotate
       rsyslog_client_log_dir: "{{ tgagent_log_dir }}"
       rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"
-      tags: [fluentd, fluentd-rsyslog]
+      tags: [fluentd-rsyslog]
   
   post_tasks:
     # Re-enable fluentd haproxy backend.
@@ -55,7 +54,7 @@
       when:
         - "'fluentd' in group_names"
         - "groups['fluentd'] | length > 1"
-      tags: [fluentd, fluentd-post-install]
+      tags: [fluentd-enable-haproxy]
 
   vars_files:
     - vars/fluentd.yml

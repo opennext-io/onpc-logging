@@ -28,7 +28,7 @@
       when:
         - "'kibana' in group_names"
         - "groups['kibana'] | length > 1"
-      tags: [kibana, kibana-disable-haproxy]
+      tags: [kibana-disable-haproxy]
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
@@ -36,16 +36,15 @@
         log_dirs:
           - src: "/openstack/log/{{ inventory_hostname }}-kibana"
             dest: "{{ kibana_log_dir }}"
-      tags: [kibana, kibana-pre-install]
+    - include: /opt/openstack-ansible/playbooks/common-tasks/package-cache-proxy.yml
   
   roles:
     - role: "kibana"
-      tags: [kibana, kibana-install]
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: kibana_log_rotate
       rsyslog_client_log_dir: "{{ kibana_log_dir }}"
       rsyslog_client_config_name: "99-kibana-rsyslog-client.conf"
-      tags: [kibana, kibana-rsyslog]
+      tags: [kibana-rsyslog]
   
   post_tasks:
     # Re-enable kibana haproxy backend.
@@ -56,7 +55,7 @@
       when:
         - "'kibana' in group_names"
         - "groups['kibana'] | length > 1"
-      tags: [kibana, kibana-post-install]
+      tags: [kibana-enable-haproxy]
 
   vars_files:
     - vars/kibana.yml
