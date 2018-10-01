@@ -87,6 +87,3 @@
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
       tags: [elasticsearch-enable-haproxy]
-  
-  vars_files:
-    - vars/elasticsearch.yml

@@ -55,7 +55,3 @@
         - "'fluentd' in group_names"
         - "groups['fluentd'] | length > 1"
       tags: [fluentd-enable-haproxy]
-
-  vars_files:
-    - vars/fluentd.yml
-    - vars/elasticsearch.yml

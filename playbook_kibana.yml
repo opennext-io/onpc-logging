@@ -56,7 +56,3 @@
         - "'kibana' in group_names"
         - "groups['kibana'] | length > 1"
       tags: [kibana-enable-haproxy]
-
-  vars_files:
-    - vars/kibana.yml
-    - vars/elasticsearch.yml
