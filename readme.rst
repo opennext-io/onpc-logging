@@ -62,7 +62,7 @@ Install Kibana on Kibana containers
 
 Reconfigure rsyslog clients on hosts and containers to send syslog logs to fluentd (optional)
 Normally, this should be done at infra and openstack setup time as long as
-'rsyslog_client_user_defined_targets' is properly defined in user_onpc_variable.yml file.
+'rsyslog_client_user_defined_targets' is properly defined in user_onpc_variables.yml file.
 
 .. code-block:: bash
 
