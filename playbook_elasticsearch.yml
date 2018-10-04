@@ -61,7 +61,7 @@
         node.name: "{{ elastic_node_name }}"
         cluster.name: "{{ elastic_cluster_name }}"
         discovery.zen.ping.unicast.hosts: "{{ elastic_cluster_nodes }}"
-        # Seems to be the only config that works with ES that is very fuzy
+        # Seems to be the only config that works ...
         network.host: [127.0.0.1, "{{ ansible_host }}"] 
         http.port: "{{ elastic_port }}"
         transport.tcp.port: "{{ elastic_transport_port }}"
