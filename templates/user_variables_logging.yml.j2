@@ -1,0 +1,97 @@
+# {{ ansible_managed }}
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## Use Slack for alerts
+# To avoid being spammed with false alerts in slack, the slack_alert variable
+# should be defined in the vars section of the top level inventory on infra-master
+# node like in:
+# [all:vars]
+# slack_alert={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }
+{% set slack = slack_alert | default({}) %}
+{% if slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
+slack_alerts_enabled: true
+slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
+# Note: should go in vault
+slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
+{% else %}
+slack_alerts_channel: ""
+slack_webhooks_url: ""
+slack_alerts_enabled: false
+{% endif %}
+
+## td-agent variables
+# Variable used by 'rsyslog_client' role to define additional rsyslog targets
+fluentd_syslog_port: 5140
+tgagent_log_dir: "/var/log/td-agent"
+{%- raw %}
+tdagent_syslog_port: "{{ fluentd_syslog_port }}"
+{%- endraw %}
+tgagent_bind_address: 0.0.0.0
+tdagent_plugins:
+  - fluent-plugin-multiprocess
+  - fluent-plugin-forest
+  - fluent-plugin-elasticsearch
+  - fluent-plugin-rewrite-tag-filter
+
+tdagent_plugins_versions:
+  flowcounter:
+    name: fluent-plugin-flowcounter
+    version: 0.4.1
+
+tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
+
+# tdagent_conf_others:
+#  influxdb_metrics:
+#    src:  templates/fluentd/influxdb.conf.j2
+#    dest: influxdb.conf
+
+rsyslog_client_user_defined_targets:
+  - name: fluentd
+    proto: tcp
+    template: "$ActionFileDefaultTemplate RSYSLOG_ForwardFormat"
+{%- raw %}
+    port: "{{ fluentd_syslog_port }}"
+    hostname: "{{ fluentd_host | default(internal_lb_vip_address) }}"
+{% endraw %}
+
+## Elasticsearch variables
+#
+elastic_log_dir: "/var/log/elasticsearch"
+elastic_data_dir: "/var/lib/elasticsearch/data"
+elastic_container_bind_mounts:
+{%- raw %}
+  - bind_dir_path: "{{ elastic_data_dir }}"
+    mount_path: "/openstack/{{ inventory_hostname }}"
+{%- endraw %}
+elastic_cluster_name: elasticsearch
+elastic_port: 9200
+elastic_transport_port: 9300
+{%- raw %}
+elastic_node_name: "{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}"
+elastic_cluster_nodes: "{% set IP_ARR=[] %}{% for host in groups['elasticsearch'] | union(groups['kibana']) %}{% if IP_ARR.insert(loop.index,hostvars[host]['ansible_host']) %}{% endif %}{% endfor %}{{ IP_ARR | list }}"
+{% endraw %}
+
+## Kibana variables
+#
+kibana_server_host: 0.0.0.0
+kibana_server_port: 5601
+kibana_version: 6.2.4
+kibana_major_version: "6.x"
+{%- raw %}
+kibana_elasticsearch_url: "http://localhost:{{ elastic_port }}"
+{%- endraw %}
+kibana_conf_template: kibana/kibana.yml.j2
+kibana_log_dir: "/var/log/kibana"
