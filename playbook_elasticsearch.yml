@@ -18,6 +18,7 @@
   gather_facts: true
   user: root
   environment: "{{ onpc_environment_variables }}"
+  serial: 1
   pre_tasks:
     # Disable elasticsearch haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
@@ -27,22 +28,30 @@
       when:
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
-      tags: [elasticsearch, elasticsearch-disable-haproxy]   
+      tags: [elasticsearch-disable-haproxy]   
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
       static: no
       vars:
         list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
       when:
-        - "{{ node_data | default(true) | bool }}"
-      tags: [elasticsearch, elasticsearch-bind-mounts]
-    # Only relevant to install on metal
+        - node_data | default(true) | bool
+      tags: [elasticsearch-bind-mounts]
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
         log_dirs:
           - src: "/openstack/log/{{ inventory_hostname }}-elasticsearch"
             dest: "{{ elasticsearch_log_dir }}"
-      tags: [elasticsearch, elasticsearch-pre-install]
-      
+    - include: /opt/openstack-ansible/playbooks/common-tasks/package-cache-proxy.yml
+    # This must be done on host because root file system is read only in containers
+    - name: Configure systcl vm.max_map_count=262144 on container hosts
+      sysctl:
+        name: "vm.max_map_count"
+        value: "262144"
+        state: "present"
+        reload: "yes"
+      delegate_to: "{{ physical_host }}"
+      tags: [elasticsearch-systemctl]
+
   roles:
     - role: elasticsearch
       es_instance_name: "{{ ansible_nodename }}"
@@ -55,21 +64,18 @@
         # Seems to be the only network.host config that works ...
         network.host: 0.0.0.0
         http.port: "{{ elastic_port }}"
-        transport.host: localhost
         transport.tcp.port: "{{ elastic_transport_port }}"
         node.data: "{{ node_data | default(true) }}"
         node.master: "{{ node_master | default(true) }}"
         bootstrap.memory_lock: true
       es_version_lock: false
-      es_heap_size: 2g
+      es_heap_size: 1g
       es_max_map_count: 262144
-      tags: [elasticsearch, elasticsearch-install]  
-
     - role: "rsyslog_client"
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "{{ elastic_log_dir }}"
       rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"
-      tags: [elasticsearch, elasticsearch-rsyslog]
+      tags: [elasticsearch-rsyslog]
 
   post_tasks:
     # Re-enable elasticsearch haproxy backend.
@@ -80,7 +86,4 @@
       when:
         - "'elasticsearch' in group_names"
         - "groups['elasticsearch'] | length > 1"
-      tags: [elasticsearch, elasticsearch-post-install]
-  
-  vars_files:
-    - vars/elasticsearch.yml
+      tags: [elasticsearch-enable-haproxy]
