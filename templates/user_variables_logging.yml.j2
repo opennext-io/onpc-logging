@@ -14,31 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## Use Slack for alerts
-# To avoid being spammed with false alerts in slack, the slack_alert variable
-# should be defined in the vars section of the top level inventory on infra-master
-# node like in:
-# [all:vars]
-# slack_alert={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }
-{% set slack = slack_alert | default({}) %}
-{% if slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
-slack_alerts_enabled: true
-slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
-# Note: should go in vault
-slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
-{% else %}
-slack_alerts_channel: ""
-slack_webhooks_url: ""
-slack_alerts_enabled: false
-{% endif %}
-
 ## td-agent variables
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets
 fluentd_syslog_port: 5140
-tgagent_log_dir: "/var/log/td-agent"
+tgagent_log_dir: /var/log/td-agent
 {%- raw %}
 tdagent_syslog_port: "{{ fluentd_syslog_port }}"
-{%- endraw %}
+{% endraw %}
 tgagent_bind_address: 0.0.0.0
 tdagent_plugins:
   - fluent-plugin-multiprocess
@@ -51,7 +33,7 @@ tdagent_plugins_versions:
     name: fluent-plugin-flowcounter
     version: 0.4.1
 
-tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
+tdagent_conf_template: templates/fluentd/td-agent.conf.j2
 
 # tdagent_conf_others:
 #  influxdb_metrics:
@@ -69,13 +51,13 @@ rsyslog_client_user_defined_targets:
 
 ## Elasticsearch variables
 #
-elastic_log_dir: "/var/log/elasticsearch"
-elastic_data_dir: "/var/lib/elasticsearch/data"
+elastic_log_dir: /var/log/elasticsearch
+elastic_data_dir: /var/lib/elasticsearch/data
 elastic_container_bind_mounts:
 {%- raw %}
   - bind_dir_path: "{{ elastic_data_dir }}"
     mount_path: "/openstack/{{ inventory_hostname }}"
-{%- endraw %}
+{% endraw %}
 elastic_cluster_name: elasticsearch
 elastic_port: 9200
 elastic_transport_port: 9300
@@ -92,6 +74,6 @@ kibana_version: 6.2.4
 kibana_major_version: "6.x"
 {%- raw %}
 kibana_elasticsearch_url: "http://localhost:{{ elastic_port }}"
-{%- endraw %}
+{% endraw %}
 kibana_conf_template: kibana/kibana.yml.j2
-kibana_log_dir: "/var/log/kibana"
+kibana_log_dir: /var/log/kibana
