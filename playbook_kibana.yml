@@ -16,11 +16,11 @@
 - name: Deploy Kibana
   hosts: kibana
   gather_facts: true
-  user: root
-  environment: "{{ onpc_environment_variables | default({}) }}"
+  become: true
+  become_user: root
+  environment: "{{ deployment_environment_variables | default({}) }}"
 
   pre_tasks:
-    # Disable kibana haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: kibana-back
@@ -30,6 +30,8 @@
         - "groups['kibana'] | length > 1"
       tags: [kibana-disable-haproxy]
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
+      when:
+        - "inventory_hostname in groups['all_containers']"
     # Only relevant to install on metal
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:

@@ -16,8 +16,9 @@
 - name: Deploy Fluentd
   hosts: fluentd
   gather_facts: true
-  user: root
-  environment: "{{ onpc_environment_variables }}"
+  become: true
+  become_user: root
+  environment: "{{ deployment_environment_variables }}"
  
   pre_tasks:
     # Disable fluentd haproxy backend to avoid false positive alerts.
@@ -30,6 +31,8 @@
         - "groups['fluentd'] | length > 1"
       tags: [fluentd-disable-haproxy]
     - include: "/opt/openstack-ansible/playbooks/common-tasks/os-{{ container_tech | default('lxc') }}-container-setup.yml"
+      when:
+        - "inventory_hostname in groups['all_containers']"
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
         log_dirs:

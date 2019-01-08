@@ -13,14 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Deploy Elasticsearch  
+- name: Deploy Elasticsearch 
   hosts: "{{ elastic_hosts | default('elasticsearch') }}"
   gather_facts: true
-  user: root
-  environment: "{{ onpc_environment_variables }}"
+  become: true
+  become_user: root
+  environment: "{{ deployment_environment_variables }}"
   serial: 1
   pre_tasks:
-    # Disable elasticsearch haproxy backend to avoid false positive alerts.
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
       vars:
         haproxy_backend: elasticsearch-back
@@ -35,6 +35,7 @@
         list_of_bind_mounts: "{{ elastic_container_bind_mounts }}"
       when:
         - node_data | default(true) | bool
+        - "inventory_hostname in groups['all_containers']"
       tags: [elasticsearch-bind-mounts]
     - include: /opt/openstack-ansible/playbooks/common-tasks/os-log-dir-setup.yml
       vars:
@@ -43,7 +44,7 @@
             dest: "{{ elasticsearch_log_dir }}"
     - include: /opt/openstack-ansible/playbooks/common-tasks/package-cache-proxy.yml
     # This must be done on host because root file system is read only in containers
-    - name: Configure systcl vm.max_map_count=262144 on container hosts
+    - name: Configure systcl vm.max_map_count=262144 on container's host
       sysctl:
         name: "vm.max_map_count"
         value: "262144"
