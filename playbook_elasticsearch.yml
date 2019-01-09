@@ -18,7 +18,7 @@
   gather_facts: true
   become: true
   become_user: root
-  environment: "{{ deployment_environment_variables }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"
   serial: 1
   pre_tasks:
     - include: /opt/openstack-ansible/playbooks/common-tasks/haproxy-endpoint-manage.yml
@@ -61,7 +61,7 @@
       es_config:
         node.name: "{{ elastic_node_name }}"
         cluster.name: "{{ elastic_cluster_name }}"
-        discovery.zen.ping.unicast.hosts: [127.0.0.1, "{{ elastic_cluster_nodes }}"]
+        discovery.zen.ping.unicast.hosts: "['127.0.0.1'] + {{ elastic_cluster_nodes }}"
         # Seems to be the only network.host config that works ...
         network.host: 0.0.0.0
         http.port: "{{ elastic_port }}"
@@ -72,7 +72,7 @@
       es_version_lock: false
       es_heap_size: 1g
       es_max_map_count: 262144
-    - role: "rsyslog_client"
+    - role: rsyslog_client
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "{{ elastic_log_dir }}"
       rsyslog_client_config_name: "99-elastic-rsyslog-client.conf"

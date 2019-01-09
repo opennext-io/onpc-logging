@@ -18,7 +18,7 @@
   gather_facts: true
   become: true
   become_user: root
-  environment: "{{ deployment_environment_variables }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"
  
   pre_tasks:
     # Disable fluentd haproxy backend to avoid false positive alerts.
@@ -42,7 +42,7 @@
 
   roles:
     - role: fluentd
-    - role: "rsyslog_client"
+    - role: rsyslog_client
       rsyslog_client_log_rotate_file: td-agent_log_rotate
       rsyslog_client_log_dir: "{{ tgagent_log_dir }}"
       rsyslog_client_config_name: "99-td-agent-rsyslog-client.conf"

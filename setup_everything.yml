@@ -16,17 +16,17 @@
 # Install master/data Elasticsearch servers on the elasticsearch containers
 - import_playbook: playbook_elasticsearch.yml
   vars:
-    - elastic_hosts=elasticsearch
-    - node_master=true
-    - node_data=true
+    elastic_hosts: elasticsearch
+    node_master: true
+    node_data: true
 
 # Install an Elasticsearch client on the kibana container to serve as a Kibana
 # proxy to the Elasticsearch cluster
 - import_playbook: playbook_elasticsearch.yml
   vars:
-    - elastic_hosts=kibana
-    - node_master=false
-    - node_data=false
+    elastic_hosts: kibana
+    node_master: false
+    node_data: false
 
 # Install Fluentd (td-agent) on the fluentd containers
 - import_playbook: playbook_fluentd.yml   
