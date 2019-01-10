@@ -31,7 +31,7 @@
 #  </store>
   <store>
     @type elasticsearch
-    host localhost
+    host {{ internal_lb_vip_address }}
     port {{ elastic_port }}
     logstash_format true
     include_timestamp true
