@@ -71,6 +71,7 @@
         bootstrap.memory_lock: true
       es_version_lock: false
       es_version: "{{ elastic_version }}" 
+      es_major_version: "{{ elastic_major_version }}"
       es_heap_size: "{{ elastic_heap_size }}" 
       es_max_map_count: "{{ elastic_max_map_count }}" 
     - role: rsyslog_client
