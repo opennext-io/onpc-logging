@@ -70,9 +70,9 @@
         node.master: "{{ node_master | default(true) }}"
         bootstrap.memory_lock: true
       es_version_lock: false
-      es_version: 6.3.0
-      es_heap_size: 1g
-      es_max_map_count: 262144
+      es_version: "{{ elastic_version }}" 
+      es_heap_size: "{{ elastic_heap_size }}" 
+      es_max_map_count: "{{ elastic_max_map_count }}" 
     - role: rsyslog_client
       rsyslog_client_log_rotate_file: elaticsearch_log_rotate
       rsyslog_client_log_dir: "{{ elastic_log_dir }}"
